@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${baseUrl}/login?error=missing_token`);
   }
 
-  const result = verifyMagicLinkToken(token);
+  const result = await verifyMagicLinkToken(token);
   if (!result.valid) {
     return NextResponse.redirect(
       `${baseUrl}/login?error=${encodeURIComponent(result.error)}`

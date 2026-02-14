@@ -20,14 +20,14 @@ export async function POST(request: NextRequest) {
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    if (!checkRateLimit(normalizedEmail)) {
+    if (!(await checkRateLimit(normalizedEmail))) {
       return NextResponse.json(
         { error: "Too many login attempts. Please try again later." },
         { status: 429 }
       );
     }
 
-    recordRateLimitHit(normalizedEmail);
+    await recordRateLimitHit(normalizedEmail);
 
     const subscriber = await getSubscriber(normalizedEmail);
     if (!subscriber) {
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const token = createMagicLinkToken(normalizedEmail);
+    const token = await createMagicLinkToken(normalizedEmail);
     const result = await sendMagicLinkEmail(normalizedEmail, token);
 
     if (!result.success) {

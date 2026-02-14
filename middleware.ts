@@ -6,7 +6,7 @@ const SESSION_COOKIE = "salybgone_session";
 
 function getSecret(): Uint8Array {
   const secret = process.env.NEXTAUTH_SECRET;
-  if (!secret) return new TextEncoder().encode("fallback-dev-secret");
+  if (!secret) throw new Error("NEXTAUTH_SECRET is not set");
   return new TextEncoder().encode(secret);
 }
 

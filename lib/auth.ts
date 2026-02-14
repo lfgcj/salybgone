@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import fs from "fs";
 import path from "path";
 import type { SessionPayload, MagicLinkToken } from "./types";
+import { getKV } from "./kv";
 
 const SESSION_COOKIE = "salybgone_session";
 const SESSION_DURATION_DAYS = 30;
@@ -54,25 +55,46 @@ function writeRateLimits(limits: RateLimitEntry[]) {
   fs.writeFileSync(RATE_LIMITS_FILE, JSON.stringify(limits, null, 2));
 }
 
-export function checkRateLimit(email: string): boolean {
+export async function checkRateLimit(email: string): Promise<boolean> {
+  const kv = getKV();
+
+  if (kv) {
+    const timestamps = await kv.get<number[]>(`ratelimit:${email}`);
+    if (!timestamps) return true;
+    const now = Date.now();
+    const recent = timestamps.filter((ts) => now - ts < RATE_LIMIT_WINDOW_MS);
+    return recent.length < RATE_LIMIT_MAX;
+  }
+
+  // File fallback for local development
   const limits = readRateLimits();
   const now = Date.now();
   const entry = limits.find((l) => l.email === email);
-
   if (!entry) return true;
-
   const recentRequests = entry.timestamps.filter(
     (ts) => now - ts < RATE_LIMIT_WINDOW_MS
   );
-
   return recentRequests.length < RATE_LIMIT_MAX;
 }
 
-export function recordRateLimitHit(email: string) {
+export async function recordRateLimitHit(email: string): Promise<void> {
+  const kv = getKV();
+
+  if (kv) {
+    const now = Date.now();
+    const existing = await kv.get<number[]>(`ratelimit:${email}`);
+    const timestamps = existing
+      ? existing.filter((ts) => now - ts < RATE_LIMIT_WINDOW_MS).concat(now)
+      : [now];
+    const ttlSeconds = Math.ceil(RATE_LIMIT_WINDOW_MS / 1000);
+    await kv.set(`ratelimit:${email}`, timestamps, { ex: ttlSeconds });
+    return;
+  }
+
+  // File fallback for local development
   const limits = readRateLimits();
   const now = Date.now();
   const entry = limits.find((l) => l.email === email);
-
   if (entry) {
     entry.timestamps = entry.timestamps
       .filter((ts) => now - ts < RATE_LIMIT_WINDOW_MS)
@@ -80,52 +102,61 @@ export function recordRateLimitHit(email: string) {
   } else {
     limits.push({ email, timestamps: [now] });
   }
-
   writeRateLimits(limits);
 }
 
-export function createMagicLinkToken(email: string): string {
+export async function createMagicLinkToken(email: string): Promise<string> {
+  const kv = getKV();
   const token = uuidv4();
-  const tokens = readTokens();
 
-  // Remove expired tokens for this email
+  if (kv) {
+    const ttlSeconds = MAGIC_LINK_EXPIRY_MINUTES * 60;
+    await kv.set(
+      `magic:${token}`,
+      { email, used: false },
+      { ex: ttlSeconds }
+    );
+    return token;
+  }
+
+  // File fallback for local development
+  const tokens = readTokens();
   const validTokens = tokens.filter(
     (t) => t.expiresAt > Date.now() && t.email !== email
   );
-
   validTokens.push({
     token,
     email,
     expiresAt: Date.now() + MAGIC_LINK_EXPIRY_MINUTES * 60 * 1000,
     used: false,
   });
-
   writeTokens(validTokens);
   return token;
 }
 
-export function verifyMagicLinkToken(
+export async function verifyMagicLinkToken(
   token: string
-): { valid: true; email: string } | { valid: false; error: string } {
+): Promise<{ valid: true; email: string } | { valid: false; error: string }> {
+  const kv = getKV();
+
+  if (kv) {
+    const data = await kv.get<{ email: string; used: boolean }>(`magic:${token}`);
+    if (!data) return { valid: false, error: "Invalid or expired token" };
+    if (data.used) return { valid: false, error: "Token already used" };
+    // Mark as used, keep briefly to prevent race conditions
+    await kv.set(`magic:${token}`, { ...data, used: true }, { ex: 60 });
+    return { valid: true, email: data.email };
+  }
+
+  // File fallback for local development
   const tokens = readTokens();
   const entry = tokens.find((t) => t.token === token);
+  if (!entry) return { valid: false, error: "Invalid token" };
+  if (entry.used) return { valid: false, error: "Token already used" };
+  if (entry.expiresAt < Date.now()) return { valid: false, error: "Token expired" };
 
-  if (!entry) {
-    return { valid: false, error: "Invalid token" };
-  }
-
-  if (entry.used) {
-    return { valid: false, error: "Token already used" };
-  }
-
-  if (entry.expiresAt < Date.now()) {
-    return { valid: false, error: "Token expired" };
-  }
-
-  // Mark as used (single-use)
   entry.used = true;
   writeTokens(tokens);
-
   return { valid: true, email: entry.email };
 }
 
