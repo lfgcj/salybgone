@@ -5,7 +5,8 @@
       "Bash(STRIPE_SECRET_KEY= RESEND_API_KEY= NEXTAUTH_SECRET= KV_REST_API_URL= KV_REST_API_TOKEN= npm run build:*)",
       "Bash(git push:*)",
       "Bash(npm audit:*)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(git add:*)"
     ]
   }
 }
