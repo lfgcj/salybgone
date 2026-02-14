@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(STRIPE_SECRET_KEY= RESEND_API_KEY= NEXTAUTH_SECRET= KV_REST_API_URL= KV_REST_API_TOKEN= npm run build:*)"
     ]
   }
 }

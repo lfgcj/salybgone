@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,6 +30,7 @@ export async function POST(request: NextRequest) {
       sessionParams.customer_email = email;
     }
 
+    const stripe = getStripe();
     const session = await stripe.checkout.sessions.create(
       sessionParams as Parameters<typeof stripe.checkout.sessions.create>[0]
     );

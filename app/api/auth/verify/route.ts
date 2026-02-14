@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyMagicLinkToken, createSession } from "@/lib/auth";
 import { getSubscriber } from "@/lib/subscribers";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import { addSubscriber } from "@/lib/subscribers";
 import { cookies } from "next/headers";
 
@@ -63,7 +63,7 @@ async function handleCheckoutSuccess(
   baseUrl: string
 ): Promise<NextResponse> {
   try {
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const session = await getStripe().checkout.sessions.retrieve(sessionId);
     const email =
       session.customer_email || session.customer_details?.email;
     const customerId = session.customer as string;
