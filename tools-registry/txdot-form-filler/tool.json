@@ -1,0 +1,13 @@
+{
+  "name": "TxDOT Form Filler",
+  "description": "Auto-fills TxDOT compliance forms from your data, eliminating manual entry across dozens of fields",
+  "longDescription": "Automates the tedious process of filling out Texas Department of Transportation compliance forms. Feed it your project data in a simple CSV format, and it generates completed PDF forms ready for submission.\n\nSupports the most common TxDOT forms including:\n- DBE Commitment Agreement\n- Monthly Employment Utilization Report\n- Material/Supplier Certification\n- Subcontractor Payment Verification\n\nThe script validates all required fields before generating output to catch errors before submission.",
+  "category": "Tax & Compliance",
+  "type": "download",
+  "tags": ["TxDOT", "compliance", "forms", "Texas", "python", "PDF"],
+  "instructions": "1. Install Python 3.10 or later\n2. Install dependencies: pip install -r requirements.txt\n3. Prepare your project data CSV (see sample_data.csv for format)\n4. Run: python form_filler.py --input your_data.csv --form dbe_commitment\n5. Completed forms are saved to the output/ directory as PDFs",
+  "requirements": "Python 3.10+, reportlab, PyPDF2",
+  "dateAdded": "2026-02-13",
+  "version": "1.0.0",
+  "files": ["form_filler.py", "requirements.txt", "README.md"]
+}

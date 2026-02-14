@@ -1,0 +1,13 @@
+{
+  "name": "Your Tool Name",
+  "description": "One-line description shown in the tool catalog",
+  "longDescription": "Optional longer description for the tool detail page. Supports plain text with newlines for paragraphs.",
+  "category": "Audit Tools",
+  "type": "download",
+  "tags": ["tag1", "tag2"],
+  "instructions": "Step 1: ...\nStep 2: ...\nStep 3: ...",
+  "requirements": "Python 3.10+, pandas",
+  "dateAdded": "2026-02-13",
+  "version": "1.0.0",
+  "files": ["your_script.py", "requirements.txt"]
+}

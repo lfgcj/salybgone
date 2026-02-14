@@ -1,0 +1,13 @@
+{
+  "name": "Excel Batch Formatter",
+  "description": "Batch format Excel workbooks to firm standards — Calibri 10pt, consistent headers, print-ready layouts",
+  "longDescription": "Standardizes the formatting of all Excel workbooks in a directory to match your firm's standards. No more manually reformatting client-provided spreadsheets.\n\nApplies the following formatting:\n- Font: Calibri 10pt throughout\n- Headers: Bold, bottom border, frozen panes\n- Column widths: Auto-fit with minimum/maximum constraints\n- Number formats: Proper accounting format for currency columns\n- Print setup: Landscape, fit to page, repeat header rows\n- Removes excessive colors, merged cells, and non-standard formatting\n\nProcesses entire directories of workbooks in one run. Original files are preserved — formatted copies are saved to the output directory.",
+  "category": "Excel & Spreadsheets",
+  "type": "download",
+  "tags": ["Excel", "formatting", "VBA", "batch", "Calibri"],
+  "instructions": "1. Open Excel\n2. Press Alt+F11 to open the VBA Editor\n3. Import the BatchFormatter.bas module (File > Import)\n4. Close the VBA Editor\n5. Press Alt+F8, select 'BatchFormatWorkbooks', and click Run\n6. Select the folder containing your workbooks when prompted\n7. Formatted copies will be saved to a 'Formatted' subfolder",
+  "requirements": "Microsoft Excel 2016 or later (Windows), macros must be enabled",
+  "dateAdded": "2026-02-13",
+  "version": "1.0.0",
+  "files": ["BatchFormatter.bas", "README.md"]
+}

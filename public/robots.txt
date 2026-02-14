@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /tools/
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /login
+Disallow: /expired
+
+Sitemap: https://salybgone.com/sitemap.xml

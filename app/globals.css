@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0A0A0A;
+  --foreground: #EDEDED;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  ::selection {
+    background-color: rgba(245, 158, 11, 0.3);
+    color: #FCD34D;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0A0A0A;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-amber text-black font-semibold px-6 py-3 rounded-lg
+           hover:bg-amber-hover transition-colors duration-200
+           focus:outline-none focus:ring-2 focus:ring-amber focus:ring-offset-2 focus:ring-offset-bg;
+  }
+
+  .btn-secondary {
+    @apply border border-border text-text-secondary px-6 py-3 rounded-lg
+           hover:border-border-hover hover:text-text-primary transition-colors duration-200
+           focus:outline-none focus:ring-2 focus:ring-amber focus:ring-offset-2 focus:ring-offset-bg;
+  }
+
+  .card {
+    @apply bg-bg-card border border-border rounded-xl p-6
+           hover:border-border-hover transition-colors duration-200;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium
+           bg-amber/10 text-amber border border-amber/20;
+  }
+
+  .badge-neutral {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium
+           bg-white/5 text-text-secondary border border-border;
+  }
+
+  .input-field {
+    @apply w-full bg-bg-card border border-border rounded-lg px-4 py-3
+           text-text-primary placeholder:text-text-muted
+           focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber
+           transition-colors duration-200;
+  }
+}

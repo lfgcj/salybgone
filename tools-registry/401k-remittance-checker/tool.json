@@ -1,0 +1,13 @@
+{
+  "name": "401k Remittance Checker",
+  "description": "Flags late remittances across all pay periods by comparing payroll dates against deposit dates",
+  "longDescription": "This Python script analyzes 401(k) remittance data to identify late deposits that could trigger DOL penalties. Feed it a CSV of payroll dates and corresponding deposit dates, and it flags any remittance that exceeds the DOL's safe harbor deadline.\n\nThe script generates a clean summary report showing:\n- Each pay period with remittance timing\n- Late remittances highlighted with the number of business days late\n- Total count of violations by plan\n- Recommended language for management letter comments",
+  "category": "Audit Tools",
+  "type": "download",
+  "tags": ["401k", "remittance", "audit", "DOL", "python"],
+  "instructions": "1. Install Python 3.10 or later\n2. Install dependencies: pip install -r requirements.txt\n3. Prepare your CSV with columns: plan_name, pay_date, deposit_date, amount\n4. Run: python checker.py --input your_data.csv\n5. Review the generated report in the output/ directory",
+  "requirements": "Python 3.10+, pandas",
+  "dateAdded": "2026-02-13",
+  "version": "1.0.0",
+  "files": ["checker.py", "requirements.txt", "README.md"]
+}
