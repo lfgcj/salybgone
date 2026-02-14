@@ -3,6 +3,7 @@ import { verifyMagicLinkToken, createSession } from "@/lib/auth";
 import { getSubscriber } from "@/lib/subscribers";
 import { getStripe } from "@/lib/stripe";
 import { addSubscriber } from "@/lib/subscribers";
+import { hasProfile } from "@/lib/profiles";
 import { cookies } from "next/headers";
 
 const SESSION_COOKIE = "salybgone_session";
@@ -41,12 +42,15 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${baseUrl}/expired`);
   }
 
+  const profileExists = await hasProfile(subscriber.email);
   const sessionToken = await createSession(
     subscriber.email,
-    subscriber.stripeCustomerId
+    subscriber.stripeCustomerId,
+    profileExists
   );
 
-  const response = NextResponse.redirect(`${baseUrl}/dashboard`);
+  const redirectTo = profileExists ? "/dashboard" : "/onboarding";
+  const response = NextResponse.redirect(`${baseUrl}${redirectTo}`);
   response.cookies.set(SESSION_COOKIE, sessionToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -78,9 +82,10 @@ async function handleCheckoutSuccess(
       await addSubscriber(email, customerId, subscriptionId);
     }
 
-    const sessionToken = await createSession(email, customerId);
+    // New subscribers won't have a profile yet — hasProfile: false
+    const sessionToken = await createSession(email, customerId, false);
 
-    const response = NextResponse.redirect(`${baseUrl}/dashboard`);
+    const response = NextResponse.redirect(`${baseUrl}/onboarding`);
     response.cookies.set(SESSION_COOKIE, sessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

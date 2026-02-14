@@ -162,12 +162,14 @@ export async function verifyMagicLinkToken(
 
 export async function createSession(
   email: string,
-  stripeCustomerId: string
+  stripeCustomerId: string,
+  hasProfile = false
 ): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
   const jwt = await new SignJWT({
     email,
     stripeCustomerId,
+    hasProfile,
   } as unknown as Record<string, unknown>)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt(now)

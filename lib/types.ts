@@ -40,6 +40,24 @@ export interface MagicLinkToken {
 export interface SessionPayload {
   email: string;
   stripeCustomerId: string;
+  hasProfile?: boolean;
   iat: number;
   exp: number;
+}
+
+export interface Profile {
+  email: string;
+  fullName: string;
+  company: string;
+  role: string;
+  firmSize: string;
+  city: string;
+  state: string;
+  industries: string[];
+  engagementTypes: string[];
+  biggestPainPoint: string;
+  referralSource: string;
+  toolInterests: string;
+  completedAt: string;
+  updatedAt: string;
 }

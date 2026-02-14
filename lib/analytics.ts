@@ -48,3 +48,21 @@ export function resetUser() {
     posthog.reset();
   }
 }
+
+export function trackOnboardingStarted() {
+  capture("onboarding_started");
+}
+
+export function trackOnboardingCompleted(
+  role: string,
+  firmSize: string,
+  industries: string[],
+  referralSource: string
+) {
+  capture("onboarding_completed", {
+    role,
+    firm_size: firmSize,
+    industries,
+    referral_source: referralSource,
+  });
+}

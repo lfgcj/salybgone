@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import type { Tool } from "@/lib/types";
 import {
   identifyUser,
@@ -10,11 +12,23 @@ import {
   trackBillingPortalOpened,
 } from "@/lib/analytics";
 
-export default function DashboardPage() {
+function DashboardContent() {
+  const searchParams = useSearchParams();
+  const [showWelcome, setShowWelcome] = useState(false);
   const [tools, setTools] = useState<Tool[]>([]);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (searchParams.get("welcome") === "true") {
+      setShowWelcome(true);
+      // Clean up the URL
+      window.history.replaceState({}, "", "/dashboard");
+      const timer = setTimeout(() => setShowWelcome(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     fetch("/api/tools")
@@ -90,6 +104,12 @@ export default function DashboardPage() {
             SalyBGone
           </a>
           <div className="flex items-center gap-4">
+            <a
+              href="/onboarding"
+              className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+            >
+              My Profile
+            </a>
             <button
               onClick={handleManageBilling}
               className="text-sm text-text-secondary hover:text-text-primary transition-colors"
@@ -107,6 +127,23 @@ export default function DashboardPage() {
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-8">
+        {/* Welcome Toast */}
+        {showWelcome && (
+          <div className="mb-6 bg-amber/10 border border-amber/20 rounded-lg px-4 py-3 flex items-center justify-between">
+            <p className="text-amber text-sm font-medium">
+              Welcome to SalyBGone! Your profile is set up — start exploring your tools.
+            </p>
+            <button
+              onClick={() => setShowWelcome(false)}
+              className="text-amber/60 hover:text-amber ml-4"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        )}
+
         {/* Welcome */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-text-primary mb-1">
@@ -211,5 +248,19 @@ export default function DashboardPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-bg flex items-center justify-center">
+          <div className="font-mono text-text-muted">Loading...</div>
+        </div>
+      }
+    >
+      <DashboardContent />
+    </Suspense>
   );
 }
