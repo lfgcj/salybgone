@@ -1,7 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import type { Tool } from "@/lib/types";
+import {
+  identifyUser,
+  resetUser,
+  trackSearchUsed,
+  trackCategoryFiltered,
+  trackBillingPortalOpened,
+} from "@/lib/analytics";
 
 export default function DashboardPage() {
   const [tools, setTools] = useState<Tool[]>([]);
@@ -17,6 +24,29 @@ export default function DashboardPage() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
+  }, []);
+
+  // Identify user in PostHog on dashboard load
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.user?.email) {
+          identifyUser(data.user.email, {
+            stripe_customer_id: data.user.stripeCustomerId,
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Debounced search tracking
+  const searchTimer = useRef<ReturnType<typeof setTimeout>>();
+  const trackSearch = useCallback((query: string, results: number) => {
+    clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => {
+      if (query.length > 0) trackSearchUsed(query, results);
+    }, 500);
   }, []);
 
   const categories = ["all", ...Array.from(new Set(tools.map((t) => t.category)))];
@@ -35,6 +65,7 @@ export default function DashboardPage() {
   });
 
   const handleManageBilling = async () => {
+    trackBillingPortalOpened();
     try {
       const res = await fetch("/api/stripe/portal", { method: "POST" });
       const data = await res.json();
@@ -45,6 +76,7 @@ export default function DashboardPage() {
   };
 
   const handleLogout = async () => {
+    resetUser();
     await fetch("/api/auth/verify", { method: "POST" });
     window.location.href = "/";
   };
@@ -92,13 +124,20 @@ export default function DashboardPage() {
               type="text"
               placeholder="Search tools by name, description, or tag..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                const q = e.target.value;
+                setSearch(q);
+                trackSearch(q, filtered.length);
+              }}
               className="input-field"
             />
           </div>
           <select
             value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
+            onChange={(e) => {
+              setCategoryFilter(e.target.value);
+              trackCategoryFiltered(e.target.value);
+            }}
             className="input-field sm:w-56"
           >
             {categories.map((cat) => (

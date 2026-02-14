@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import type { Tool } from "@/lib/types";
+import { trackToolViewed, trackToolDownloaded } from "@/lib/analytics";
 
 export default function ToolDetailPage() {
   const params = useParams();
@@ -17,12 +18,14 @@ export default function ToolDetailPage() {
       .then((tools: Tool[]) => {
         const found = tools.find((t) => t.slug === slug);
         setTool(found || null);
+        if (found) trackToolViewed(found.slug, found.name);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, [slug]);
 
   const handleDownload = async () => {
+    if (tool) trackToolDownloaded(tool.slug, tool.name);
     setDownloading(true);
     try {
       const res = await fetch(`/api/download/${slug}`);

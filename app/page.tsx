@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import type { Tool } from "@/lib/types";
+import { trackCheckoutStarted } from "@/lib/analytics";
 
 function useIntersectionObserver(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null);
@@ -60,6 +61,7 @@ export default function LandingPage() {
   }, []);
 
   const handleSubscribe = async () => {
+    trackCheckoutStarted();
     try {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
