@@ -142,24 +142,6 @@ function LoginForm() {
           </a>
         </p>
 
-        {process.env.NODE_ENV === "development" && (
-          <div className="mt-6 pt-6 border-t border-border">
-            <p className="text-center text-text-muted text-xs mb-3">
-              Development Mode
-            </p>
-            <button
-              onClick={async () => {
-                const res = await fetch("/api/auth/dev-login", { method: "POST" });
-                if (res.ok) {
-                  window.location.href = "/dashboard";
-                }
-              }}
-              className="w-full rounded-lg border border-amber/30 bg-amber/5 px-4 py-2.5 text-sm font-medium text-amber hover:bg-amber/10 transition-colors"
-            >
-              Dev Login (skip auth)
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
