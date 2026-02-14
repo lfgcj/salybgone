@@ -142,9 +142,9 @@ export async function verifyMagicLinkToken(
   if (kv) {
     const data = await kv.get<{ email: string; used: boolean }>(`magic:${token}`);
     if (!data) return { valid: false, error: "Invalid or expired token" };
-    if (data.used) return { valid: false, error: "Token already used" };
-    // Mark as used, keep briefly to prevent race conditions
-    await kv.set(`magic:${token}`, { ...data, used: true }, { ex: 60 });
+    // Allow reuse within TTL window — email scanners (Outlook SafeLinks)
+    // pre-fetch URLs which would consume single-use tokens before the user clicks.
+    // The token is an unguessable UUID, so reuse within 15min is safe.
     return { valid: true, email: data.email };
   }
 
