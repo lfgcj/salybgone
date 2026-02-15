@@ -16,6 +16,7 @@ function DashboardContent() {
   const searchParams = useSearchParams();
   const [showWelcome, setShowWelcome] = useState(false);
   const [tools, setTools] = useState<Tool[]>([]);
+  const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [loading, setLoading] = useState(true);
@@ -33,9 +34,19 @@ function DashboardContent() {
   useEffect(() => {
     fetch("/api/tools")
       .then((r) => r.json())
-      .then((data) => {
+      .then((data: Tool[]) => {
         setTools(data);
         setLoading(false);
+        // Fetch comment counts for all tools
+        if (data.length > 0) {
+          const slugs = data.map((t: Tool) => t.slug).join(",");
+          fetch(`/api/comments?slugs=${encodeURIComponent(slugs)}`)
+            .then((r) => r.json())
+            .then((d) => {
+              if (d.counts) setCommentCounts(d.counts);
+            })
+            .catch(() => {});
+        }
       })
       .catch(() => setLoading(false));
   }, []);
@@ -232,9 +243,19 @@ function DashboardContent() {
                   ))}
                 </div>
                 <div className="flex items-center justify-between pt-4 border-t border-border mt-auto">
-                  <span className="text-xs text-text-muted">
-                    Added {tool.dateAdded}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-text-muted">
+                      Added {tool.dateAdded}
+                    </span>
+                    {(commentCounts[tool.slug] || 0) > 0 && (
+                      <span className="flex items-center gap-1 text-xs text-text-muted">
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        {commentCounts[tool.slug]}
+                      </span>
+                    )}
+                  </div>
                   <a
                     href={`/tools/${tool.slug}`}
                     className="text-sm text-amber hover:text-amber-light transition-colors font-medium"

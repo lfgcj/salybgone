@@ -45,6 +45,20 @@ export interface SessionPayload {
   exp: number;
 }
 
+export interface Comment {
+  id: string;
+  email: string;
+  authorName: string;
+  authorCompany: string;
+  authorRole: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface CommentWithTool extends Comment {
+  toolSlug: string;
+}
+
 export interface Profile {
   email: string;
   fullName: string;

@@ -49,6 +49,25 @@ export function resetUser() {
   }
 }
 
+export function trackCommentPosted(
+  toolSlug: string,
+  toolName: string,
+  commentLength: number
+) {
+  capture("comment_posted", {
+    tool_slug: toolSlug,
+    tool_name: toolName,
+    comment_length: commentLength,
+  });
+}
+
+export function trackCommentsViewed(toolSlug: string, commentCount: number) {
+  capture("comments_viewed", {
+    tool_slug: toolSlug,
+    comment_count: commentCount,
+  });
+}
+
 export function trackOnboardingStarted() {
   capture("onboarding_started");
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import type { Tool } from "@/lib/types";
 import { trackToolViewed, trackToolDownloaded } from "@/lib/analytics";
+import CommentsSection from "@/app/components/CommentsSection";
 
 export default function ToolDetailPage() {
   const params = useParams();
@@ -235,9 +236,14 @@ export default function ToolDetailPage() {
         </div>
 
         {/* Meta */}
-        <div className="text-sm text-text-muted flex items-center gap-4">
+        <div className="text-sm text-text-muted flex items-center gap-4 mb-8">
           <span>Added {tool.dateAdded}</span>
           <span>Version {tool.version}</span>
+        </div>
+
+        {/* Comments */}
+        <div className="border-t border-border pt-8">
+          <CommentsSection toolSlug={tool.slug} toolName={tool.name} />
         </div>
       </main>
     </div>
